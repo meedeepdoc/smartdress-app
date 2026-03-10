@@ -2,72 +2,81 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>SmartDress Catalog</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root {
             --tg-theme-bg-color: #ffffff;
             --tg-theme-text-color: #000000;
-            --tg-theme-button-color: #8a2be2;
+            --tg-theme-button-color: #000000;
             --tg-theme-button-text-color: #ffffff;
+            --tg-theme-hint-color: #999999;
         }
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--tg-theme-bg-color, #f4f4f5);
-            color: var(--tg-theme-text-color, #18181b);
+            background-color: var(--tg-theme-bg-color);
+            color: var(--tg-theme-text-color);
             margin: 0;
-            padding: 16px;
+            padding: 16px 16px 80px 16px; /* Отступ снизу для кнопки */
         }
         .header {
             text-align: center;
             margin-bottom: 24px;
         }
+        .header h2 { margin: 0 0 8px 0; font-size: 24px; }
+        .header p { margin: 0; color: var(--tg-theme-hint-color); font-size: 14px; }
+        
         .catalog-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
             gap: 12px;
         }
         .item-card {
-            background: white;
+            background: #f9f9f9;
             border-radius: 12px;
             overflow: hidden;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            padding-bottom: 12px;
             display: flex;
             flex-direction: column;
+            position: relative;
         }
         .item-image {
             width: 100%;
             height: 180px;
-            background-color: #e4e4e7;
             object-fit: cover;
         }
         .item-info {
-            padding: 8px 12px;
+            padding: 10px;
             flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
         }
         .item-title {
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 600;
             margin: 0 0 4px 0;
+            line-height: 1.2;
         }
         .item-price {
-            color: #71717a;
-            font-size: 13px;
-            margin: 0 0 12px 0;
+            color: var(--tg-theme-hint-color);
+            font-size: 12px;
+            margin: 0 0 10px 0;
         }
-        .btn-rent {
-            background-color: var(--tg-theme-button-color, #8a2be2);
-            color: var(--tg-theme-button-text-color, #ffffff);
+        .add-btn {
+            background-color: var(--tg-theme-button-color);
+            color: var(--tg-theme-button-text-color);
             border: none;
             border-radius: 8px;
-            padding: 8px;
-            width: calc(100% - 24px);
-            margin: 0 auto;
+            padding: 6px;
             font-weight: 600;
+            font-size: 13px;
             cursor: pointer;
-            display: block;
+            width: 100%;
+            transition: 0.2s;
+        }
+        .add-btn.added {
+            background-color: #34c759; /* Зеленый цвет при добавлении */
         }
     </style>
 </head>
@@ -75,47 +84,94 @@
 
     <div class="header">
         <h2>SmartDress 🛍️</h2>
-        <p>Выбери свой образ</p>
+        <p>Капсульный гардероб по подписке</p>
     </div>
 
-    <div class="catalog-grid">
-        <div class="item-card">
-            <img src="https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=400" alt="Тренч" class="item-image">
-            <div class="item-info">
-                <h3 class="item-title">Классический тренч</h3>
-                <p class="item-price">500 ₽ / день</p>
-            </div>
-            <button class="btn-rent" onclick="rentItem('Классический тренч')">Арендовать</button>
+    <div class="catalog-grid" id="catalog">
         </div>
-        
-        <div class="item-card">
-            <img src="https://images.unsplash.com/photo-1539008835657-9e8e9680c956?w=400" alt="Платье" class="item-image">
-            <div class="item-info">
-                <h3 class="item-title">Вечернее платье</h3>
-                <p class="item-price">1200 ₽ / день</p>
-            </div>
-            <button class="btn-rent" onclick="rentItem('Вечернее платье')">Арендовать</button>
-        </div>
-    </div>
 
     <script>
-        // Инициализируем Telegram Web App
         let tg = window.Telegram.WebApp;
-        tg.expand(); // Разворачиваем на весь экран
+        tg.expand(); 
+        
+        // База товаров (Хардкод для MVP)
+        const products = [
+            { id: 1, name: "Классический бежевый тренч", price: 500, img: "https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=400" },
+            { id: 2, name: "Черный оверсайз пиджак", price: 450, img: "https://images.unsplash.com/photo-1591369822096-fb14ce271cb4?w=400" },
+            { id: 3, name: "Вечернее шелковое платье", price: 1200, img: "https://images.unsplash.com/photo-1539008835657-9e8e9680c956?w=400" },
+            { id: 4, name: "Белая базовая рубашка", price: 200, img: "https://images.unsplash.com/photo-1626497764746-6dc36546b388?w=400" },
+            { id: 5, name: "Джинсы Wide Leg", price: 350, img: "https://images.unsplash.com/photo-1602293589930-45aad59ba3ab?w=400" },
+            { id: 6, name: "Кожаная куртка-косуха", price: 800, img: "https://images.unsplash.com/photo-1551028719-00167b16eac5?w=400" },
+            { id: 7, name: "Кашемировое пальто", price: 900, img: "https://images.unsplash.com/photo-1539533018447-63fcce2678e3?w=400" },
+            { id: 8, name: "Худи оверсайз", price: 300, img: "https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=400" },
+            { id: 9, name: "Юбка-миди плиссе", price: 400, img: "https://images.unsplash.com/photo-1583496661160-c25f6174a7d6?w=400" },
+            { id: 10, name: "Брючный костюм", price: 1000, img: "https://images.unsplash.com/photo-1594938298596-03bfdc2810f1?w=400" }
+        ];
 
-        function rentItem(itemName) {
-            // Встроенная вибрация (Haptic Feedback) для приятного UX
-            tg.HapticFeedback.impactOccurred('light');
-            // Показываем нативное всплывающее окно Telegram
-            tg.showPopup({
-                title: 'Оформление',
-                message: `Ты выбрал: ${itemName}. Добавить в примерку?`,
-                buttons: [
-                    {id: 'yes', type: 'default', text: 'Да'},
-                    {type: 'cancel'}
-                ]
+        let cart = []; // Наша корзина
+
+        // Функция отрисовки каталога
+        function renderCatalog() {
+            const catalog = document.getElementById('catalog');
+            products.forEach(p => {
+                const card = document.createElement('div');
+                card.className = 'item-card';
+                card.innerHTML = `
+                    <img src="${p.img}" alt="${p.name}" class="item-image">
+                    <div class="item-info">
+                        <div>
+                            <h3 class="item-title">${p.name}</h3>
+                            <p class="item-price">${p.price} ₽ / день</p>
+                        </div>
+                        <button class="add-btn" id="btn-${p.id}" onclick="toggleCart(${p.id})">В аренду</button>
+                    </div>
+                `;
+                catalog.appendChild(card);
             });
         }
+
+        // Логика добавления/удаления из корзины
+        function toggleCart(id) {
+            tg.HapticFeedback.impactOccurred('light'); // Вибрация
+            const btn = document.getElementById(`btn-${id}`);
+            const product = products.find(p => p.id === id);
+            
+            const index = cart.findIndex(item => item.id === id);
+            
+            if (index === -1) {
+                // Добавляем в корзину
+                cart.push(product);
+                btn.classList.add('added');
+                btn.innerText = 'В корзине';
+            } else {
+                // Удаляем из корзины
+                cart.splice(index, 1);
+                btn.classList.remove('added');
+                btn.innerText = 'В аренду';
+            }
+            
+            updateMainButton();
+        }
+
+        // Обновление нативной кнопки Telegram (MainButton)
+        function updateMainButton() {
+            if (cart.length === 0) {
+                tg.MainButton.hide();
+            } else {
+                let totalPrice = cart.reduce((sum, item) => sum + item.price, 0);
+                tg.MainButton.text = `Оформить аренду (${totalPrice} ₽/день)`;
+                tg.MainButton.show();
+            }
+        }
+
+        // Отправка данных обратно в бота при клике на MainButton
+        tg.MainButton.onClick(() => {
+            // Превращаем массив корзины в JSON строку и отправляем боту
+            tg.sendData(JSON.stringify(cart));
+        });
+
+        // Запускаем отрисовку при загрузке
+        renderCatalog();
     </script>
 </body>
 </html>
