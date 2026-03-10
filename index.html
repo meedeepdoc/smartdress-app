@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartDress Catalog</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        :root {
+            --tg-theme-bg-color: #ffffff;
+            --tg-theme-text-color: #000000;
+            --tg-theme-button-color: #8a2be2;
+            --tg-theme-button-text-color: #ffffff;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--tg-theme-bg-color, #f4f4f5);
+            color: var(--tg-theme-text-color, #18181b);
+            margin: 0;
+            padding: 16px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+        .catalog-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+        .item-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            padding-bottom: 12px;
+            display: flex;
+            flex-direction: column;
+        }
+        .item-image {
+            width: 100%;
+            height: 180px;
+            background-color: #e4e4e7;
+            object-fit: cover;
+        }
+        .item-info {
+            padding: 8px 12px;
+            flex-grow: 1;
+        }
+        .item-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin: 0 0 4px 0;
+        }
+        .item-price {
+            color: #71717a;
+            font-size: 13px;
+            margin: 0 0 12px 0;
+        }
+        .btn-rent {
+            background-color: var(--tg-theme-button-color, #8a2be2);
+            color: var(--tg-theme-button-text-color, #ffffff);
+            border: none;
+            border-radius: 8px;
+            padding: 8px;
+            width: calc(100% - 24px);
+            margin: 0 auto;
+            font-weight: 600;
+            cursor: pointer;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h2>SmartDress 🛍️</h2>
+        <p>Выбери свой образ</p>
+    </div>
+
+    <div class="catalog-grid">
+        <div class="item-card">
+            <img src="https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=400" alt="Тренч" class="item-image">
+            <div class="item-info">
+                <h3 class="item-title">Классический тренч</h3>
+                <p class="item-price">500 ₽ / день</p>
+            </div>
+            <button class="btn-rent" onclick="rentItem('Классический тренч')">Арендовать</button>
+        </div>
+        
+        <div class="item-card">
+            <img src="https://images.unsplash.com/photo-1539008835657-9e8e9680c956?w=400" alt="Платье" class="item-image">
+            <div class="item-info">
+                <h3 class="item-title">Вечернее платье</h3>
+                <p class="item-price">1200 ₽ / день</p>
+            </div>
+            <button class="btn-rent" onclick="rentItem('Вечернее платье')">Арендовать</button>
+        </div>
+    </div>
+
+    <script>
+        // Инициализируем Telegram Web App
+        let tg = window.Telegram.WebApp;
+        tg.expand(); // Разворачиваем на весь экран
+
+        function rentItem(itemName) {
+            // Встроенная вибрация (Haptic Feedback) для приятного UX
+            tg.HapticFeedback.impactOccurred('light');
+            // Показываем нативное всплывающее окно Telegram
+            tg.showPopup({
+                title: 'Оформление',
+                message: `Ты выбрал: ${itemName}. Добавить в примерку?`,
+                buttons: [
+                    {id: 'yes', type: 'default', text: 'Да'},
+                    {type: 'cancel'}
+                ]
+            });
+        }
+    </script>
+</body>
+</html>
