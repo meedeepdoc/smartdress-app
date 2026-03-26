@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SmartDress Catalog</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: #f4f4f5;
+            margin: 0;
+            padding: 16px;
+        }
+        .header { text-align: center; margin-bottom: 24px; color: #000; }
+        .catalog-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+        .item-card {
+            background: #ffffff;
+            border-radius: 12px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .item-image { width: 100%; height: 180px; object-fit: cover; }
+        .item-info { padding: 10px; display: flex; flex-direction: column; }
+        
+        /* Жестко задаем цвета, чтобы Telegram их не перекрашивал */
+        .item-title { font-size: 13px; font-weight: 600; margin: 0 0 4px 0; color: #000000 !important; }
+        .item-price { font-size: 12px; margin: 0 0 10px 0; color: #555555 !important; }
+        
+        .add-btn {
+            background-color: #000000; color: #ffffff;
+            border: none; border-radius: 8px; padding: 6px;
+            font-weight: 600; cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h2 style="color: #000;">SmartDress 🛍️</h2>
+        <p style="color: #555;">Витрина товаров</p>
+    </div>
+
+    <div class="catalog-grid" id="catalog"></div>
+
+    <script>
+        let tg = window.Telegram.WebApp;
+        tg.expand(); 
+        
+        // Надежные ссылки на картинки
+        const products = [
+            { name: "Классический тренч", price: 500, img: "https://picsum.photos/400/400?random=1" },
+            { name: "Оверсайз пиджак", price: 450, img: "https://picsum.photos/400/400?random=2" },
+            { name: "Вечернее платье", price: 1200, img: "https://picsum.photos/400/400?random=3" },
+            { name: "Базовая рубашка", price: 200, img: "https://picsum.photos/400/400?random=4" }
+        ];
+
+        const catalog = document.getElementById('catalog');
+        products.forEach(p => {
+            catalog.innerHTML += `
+                <div class="item-card">
+                    <img src="${p.img}" class="item-image">
+                    <div class="item-info">
+                        <h3 class="item-title">${p.name}</h3>
+                        <p class="item-price">${p.price} ₽ / день</p>
+                        <button class="add-btn" onclick="tg.close()">Оформить в боте</button>
+                    </div>
+                </div>
+            `;
+        });
+    </script>
+</body>
+</html>ые
