@@ -19,22 +19,20 @@
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             background-color: var(--bg-color);
             color: var(--text-color);
-            margin: 0; padding: 16px; padding-bottom: 80px; /* Отступ для кнопки снизу если будет */
+            margin: 0; padding: 16px; padding-bottom: 80px; 
             -webkit-user-select: none; user-select: none;
         }
 
-        /* Header */
         .header { text-align: center; margin-bottom: 16px; }
         .user-greeting { font-size: 14px; color: var(--hint-color); margin-bottom: 4px; }
         h1 { font-size: 24px; margin: 0; }
 
-        /* Toolbar (Фильтры и Сортировка) */
         .toolbar {
             display: flex; gap: 8px; overflow-x: auto;
             margin-bottom: 20px; padding-bottom: 4px;
             -webkit-overflow-scrolling: touch;
         }
-        .toolbar::-webkit-scrollbar { display: none; } /* Скрываем скроллбар */
+        .toolbar::-webkit-scrollbar { display: none; } 
         
         .tool-btn {
             background-color: var(--card-bg);
@@ -51,7 +49,6 @@
         }
         select.tool-btn { padding-right: 24px; appearance: none; -webkit-appearance: none; }
 
-        /* Catalog Grid */
         .catalog-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
         
         .item-card {
@@ -61,7 +58,7 @@
             box-shadow: 0 1px 3px rgba(0,0,0,0.05);
             transition: transform 0.1s;
         }
-        .item-card:active { transform: scale(0.98); } /* Эффект нажатия */
+        .item-card:active { transform: scale(0.98); } 
 
         .item-image { width: 100%; height: 160px; object-fit: cover; cursor: pointer; }
         
@@ -76,7 +73,6 @@
             margin-top: 10px;
         }
 
-        /* Modal (Полноценная карточка товара) */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.6); display: none; justify-content: center; align-items: flex-end;
@@ -112,7 +108,6 @@
             font-size: 16px; font-weight: 600; cursor: pointer; width: 100%;
             box-shadow: 0 4px 10px rgba(0,0,0,0.2);
         }
-
     </style>
 </head>
 <body>
@@ -138,46 +133,44 @@
     <div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
         <div class="modal-content">
             <div class="modal-header">
-                <button class="close-modal" onclick="closeModal(force=true)">×</button>
+                <button class="close-modal" onclick="closeModal(event, true)">×</button>
             </div>
             <img src="" alt="" class="modal-image" id="modalImage">
             <h2 class="modal-title" id="modalTitle"></h2>
             <p class="modal-price" id="modalPrice"></p>
-            <p class="modal-descr">Премиальное качество аренды. Выбирайте размер в боте для оформления заказа.</p>
+            <p class="modal-descr">Премиальное качество. Выбирайте размер в боте для оформления заказа.</p>
             <button class="modal-action-btn" id="modalActionButton">Выбрать размер & Арендовать</button>
         </div>
     </div>
 
     <script>
-        const BOT_USERNAME = 'SmartDressApp_bot'; // Внедрен твой юзернейм
+        const BOT_USERNAME = 'SmartDressApp_bot'; 
         let tg = window.Telegram.WebApp;
         tg.expand();
         tg.ready();
 
-        // Персонализация
         if (tg.initDataUnsafe?.user?.first_name) {
             document.getElementById('greeting').innerText = `Привет, ${tg.initDataUnsafe.user.first_name}!`;
         }
 
-        // --- БАЗА ДАННЫХ (Синхронизирована с базой бота) ---
+        // Обновленная база данных 
         const initialProducts = [
-            { id: 1, category: 'women', name: "Кожаная куртка (Женская)", price: 500, img: "https://fakestoreapi.com/img/81XH0e8fefL._AC_UY879_.jpg" },
-            { id: 2, category: 'women', name: "Дождевик-тренч", price: 1200, img: "https://fakestoreapi.com/img/71HblAHs5xL._AC_UY879_-2.jpg" },
-            { id: 3, category: 'men', name: "Хлопковая куртка", price: 450, img: "https://fakestoreapi.com/img/71z3kpMAYsL._AC_UY879_.jpg" },
-            { id: 4, category: 'men', name: "Спортивная футболка", price: 900, img: "https://fakestoreapi.com/img/51Y5NI-I5jL._AC_UX679_.jpg" },
-            { id: 5, category: 'accs', name: "Рюкзак унисекс", price: 350, img: "https://fakestoreapi.com/img/81fPKd-2AYL._AC_SL1500_.jpg" },
-            { id: 6, category: 'men', name: "Повседневная футболка (М)", price: 850, img: "https://fakestoreapi.com/img/71-3HjGNDUL._AC_SY879._SX._UX._SY._UY_.jpg" },
-            { id: 7, category: 'men', name: "Теплая куртка", price: 400, img: "https://fakestoreapi.com/img/71li-ujtlAL._AC_UX679_.jpg" },
-            { id: 8, category: 'women', name: "Худи оверсайз", price: 400, img: "https://fakestoreapi.com/img/71YXzeOuslL._AC_UY879_.jpg" },
-            { id: 9, category: 'women', name: "Летняя блузка", price: 450, img: "https://fakestoreapi.com/img/51eg55uWmdL._AC_UX679_.jpg" },
-            { id: 10, category: 'women', name: "Свитер тонкой вязки", price: 1100, img: "https://fakestoreapi.com/img/61pHAEJ4NML._AC_UX679_.jpg" }
+            { id: 1, category: 'women', name: "Кожаная куртка (Женская)", price: 500, img: "https://images.unsplash.com/photo-1551028719-00167b16eac5?w=600&q=80" },
+            { id: 2, category: 'women', name: "Дождевик-тренч", price: 1200, img: "https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=600&q=80" },
+            { id: 3, category: 'men', name: "Хлопковая куртка", price: 450, img: "https://images.unsplash.com/photo-1520975954732-57dd22299614?w=600&q=80" },
+            { id: 4, category: 'men', name: "Спортивная футболка", price: 900, img: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=600&q=80" },
+            { id: 5, category: 'accs', name: "Рюкзак унисекс", price: 350, img: "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=600&q=80" },
+            { id: 6, category: 'men', name: "Повседневная мужская футболка", price: 850, img: "https://images.unsplash.com/photo-1529374255404-311a2a4f1fd9?w=600&q=80" },
+            { id: 7, category: 'men', name: "Теплая куртка", price: 400, img: "https://images.unsplash.com/photo-1544441893-675973e31985?w=600&q=80" },
+            { id: 8, category: 'women', name: "Худи оверсайз", price: 400, img: "https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=600&q=80" },
+            { id: 9, category: 'women', name: "Летняя женская блузка", price: 450, img: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=600&q=80" },
+            { id: 10, category: 'women', name: "Свитер тонкой вязки", price: 1100, img: "https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=600&q=80" }
         ];
 
         let currentProducts = [...initialProducts];
         let currentCategory = 'all';
         let currentSort = 'default';
 
-        // Рендер каталога
         function renderCatalog() {
             const catalog = document.getElementById('catalog');
             catalog.innerHTML = '';
@@ -199,16 +192,13 @@
             });
         }
 
-        // Фильтрация и Сортировка
         function updateProducts() {
-            // Сначала фильтруем
             if (currentCategory === 'all') {
                 currentProducts = [...initialProducts];
             } else {
                 currentProducts = initialProducts.filter(p => p.category === currentCategory);
             }
 
-            // Потом сортируем
             if (currentSort === 'price_asc') {
                 currentProducts.sort((a, b) => a.price - b.price);
             } else if (currentSort === 'price_desc') {
@@ -219,10 +209,9 @@
         }
 
         function setCategory(category, btn) {
-            tg.HapticFeedback.impactOccurred('light');
+            if(tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
             currentCategory = category;
             
-            // Обновляем активную кнопку
             document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
             if (btn) btn.classList.add('active');
             
@@ -230,16 +219,15 @@
         }
 
         function setSort(sortType) {
-            tg.HapticFeedback.impactOccurred('light');
+            if(tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
             currentSort = sortType;
             updateProducts();
         }
 
-        // --- МОДАЛЬНОЕ ОКНО (Карточка товара) ---
         const overlay = document.getElementById('modalOverlay');
 
         function openModal(productId) {
-            tg.HapticFeedback.impactOccurred('medium');
+            if(tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
             const product = initialProducts.find(p => p.id === productId);
             if (!product) return;
 
@@ -247,32 +235,28 @@
             document.getElementById('modalTitle').innerText = product.name;
             document.getElementById('modalPrice').innerText = `${product.price} ₽ / день`;
             
-            // Настраиваем кнопку действия в модальном окне
             const actionBtn = document.getElementById('modalActionButton');
             actionBtn.onclick = () => {
                 addToCartInBot(product.id);
             };
 
             overlay.classList.add('open');
-            document.body.style.overflow = 'hidden'; // Запрещаем скролл фона
+            document.body.style.overflow = 'hidden'; 
         }
 
         function closeModal(event, force=false) {
             if (force || event.target === overlay) {
                 overlay.classList.remove('open');
-                document.body.style.overflow = ''; // Возвращаем скролл
+                document.body.style.overflow = ''; 
             }
         }
 
-        // Финальное действие - уход в бота
         function addToCartInBot(itemId) {
-            tg.HapticFeedback.notificationOccurred('success');
+            if(tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
             tg.openTelegramLink(`https://t.me/${BOT_USERNAME}?start=item_${itemId}`);
         }
 
-        // Первичный рендер
         renderCatalog();
-
     </script>
 </body>
 </html>
