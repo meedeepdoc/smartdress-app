@@ -26,62 +26,77 @@
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         .item-image { width: 100%; height: 180px; object-fit: cover; }
-        .item-info { padding: 10px; display: flex; flex-direction: column; }
-        .item-title { font-size: 13px; font-weight: 600; margin: 0 0 4px 0; color: var(--tg-theme-text-color, #000) !important; }
-        .item-price { font-size: 12px; margin: 0 0 10px 0; color: var(--tg-theme-hint-color, #555) !important; }
+        .item-info { padding: 10px; display: flex; flex-direction: column; height: 100%; justify-content: space-between;}
+        .item-title { font-size: 13px; font-weight: 600; margin: 0 0 4px 0; color: var(--tg-theme-text-color, #000); }
+        .item-price { font-size: 12px; margin: 0 0 10px 0; color: var(--tg-theme-hint-color, #555); }
         .add-btn {
             background-color: var(--tg-theme-button-color, #007aff); 
             color: var(--tg-theme-button-text-color, #ffffff);
-            border: none; border-radius: 8px; padding: 6px;
-            font-weight: 600; cursor: pointer;
+            border: none; border-radius: 8px; padding: 8px;
+            font-weight: 600; cursor: pointer; width: 100%;
+            margin-top: auto;
         }
     </style>
 </head>
 <body>
     <div class="header">
-        <div class="user-greeting" id="greeting">Привет, модник! 👋</div>
+        <div class="user-greeting" id="greeting">Привет! 👋</div>
         <h2>SmartDress 🛍️</h2>
-        <p>Витрина товаров</p>
+        <p>Каталог аренды одежды</p>
     </div>
 
     <div class="catalog-grid" id="catalog"></div>
 
     <script>
+        // Инициализация Telegram Web App
         let tg = window.Telegram.WebApp;
         tg.expand(); 
         
-        // Персонализация: достаем имя пользователя из Telegram
+        // Персонализация: достаем имя пользователя
         const user = tg.initDataUnsafe?.user;
         if (user && user.first_name) {
             document.getElementById('greeting').innerText = `Привет, ${user.first_name}! 👋`;
         }
         
-        // ВАЖНО: Твой юзернейм бота
-        const BOT_USERNAME = 'MySmartDress_bot'; 
+        // ВАЖНО: Укажи здесь юзернейм твоего бота без @
+        const BOT_USERNAME = 'ТВОЙ_ЮЗЕРНЕЙМ_БОТА_ЗДЕСЬ'; 
         
+        // База данных товаров (синхронизирована с бэкендом)
         const products = [
-            { id: 1, name: "Классический тренч", price: 500, img: "https://picsum.photos/400/400?random=1" },
-            { id: 2, name: "Вечернее платье", price: 1200, img: "https://picsum.photos/400/400?random=3" },
-            { id: 3, name: "Пиджак оверсайз", price: 450, img: "https://picsum.photos/400/400?random=2" }
+            { id: 1, name: "Классический тренч", price: 500, img: "https://images.pexels.com/photos/2703202/pexels-photo-2703202.jpeg?auto=compress&cs=tinysrgb&w=600" },
+            { id: 2, name: "Вечернее платье", price: 1200, img: "https://images.pexels.com/photos/1755428/pexels-photo-1755428.jpeg?auto=compress&cs=tinysrgb&w=600" },
+            { id: 3, name: "Пиджак оверсайз", price: 450, img: "https://images.pexels.com/photos/1183266/pexels-photo-1183266.jpeg?auto=compress&cs=tinysrgb&w=600" },
+            { id: 4, name: "Брючный костюм", price: 900, img: "https://images.pexels.com/photos/3731256/pexels-photo-3731256.jpeg?auto=compress&cs=tinysrgb&w=600" },
+            { id: 5, name: "Мини-юбка плиссе", price: 350, img: "https://images.pexels.com/photos/8946112/pexels-photo-8946112.jpeg?auto=compress&cs=tinysrgb&w=600" },
+            { id: 6, name: "Кожаная куртка-косуха", price: 850, img: "https://images.pexels.com/photos/1126993/pexels-photo-1126993.jpeg?auto=compress&cs=tinysrgb&w=600" },
+            { id: 7, name: "Летнее платье", price: 400, img: "https://images.pexels.com/photos/5728040/pexels-photo-5728040.jpeg?auto=compress&cs=tinysrgb&w=600" },
+            { id: 8, name: "Юбка-миди", price: 400, img: "https://images.pexels.com/photos/20121102/pexels-photo-20121102.jpeg?auto=compress&cs=tinysrgb&w=600" },
+            { id: 9, name: "Шелковая блузка", price: 450, img: "https://images.pexels.com/photos/7091214/pexels-photo-7091214.jpeg?auto=compress&cs=tinysrgb&w=600" },
+            { id: 10, name: "Зимнее пальто", price: 1100, img: "https://images.pexels.com/photos/4005030/pexels-photo-4005030.jpeg?auto=compress&cs=tinysrgb&w=600" }
         ];
 
+        // Рендер каталога
         const catalog = document.getElementById('catalog');
         products.forEach(p => {
             catalog.innerHTML += `
                 <div class="item-card">
-                    <img src="${p.img}" class="item-image">
+                    <img src="${p.img}" class="item-image" alt="${p.name}">
                     <div class="item-info">
-                        <h3 class="item-title">${p.name}</h3>
-                        <p class="item-price">${p.price} ₽ / день</p>
-                        <button class="add-btn" onclick="addToCartInBot(${p.id})">Добавить</button>
+                        <div>
+                            <h3 class="item-title">${p.name}</h3>
+                            <p class="item-price">${p.price} ₽ / день</p>
+                        </div>
+                        <button class="add-btn" onclick="addToCartInBot(${p.id})">Выбрать размер</button>
                     </div>
                 </div>
             `;
         });
 
+        // Функция взаимодействия с ботом
         function addToCartInBot(itemId) {
             tg.HapticFeedback.impactOccurred('light');
-            tg.openTelegramLink(`https://t.me/${BOT_USERNAME}?start=add_${itemId}`);
+            // Перебрасываем юзера в бота для выбора конкретного размера
+            tg.openTelegramLink(`https://t.me/${BOT_USERNAME}?start=item_${itemId}`);
         }
     </script>
 </body>
